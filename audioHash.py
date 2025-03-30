@@ -259,67 +259,67 @@ class AudioHash:
 
 
     def encode_peaks(self, peaks):
-        """
-        Encode a list of peaks using efficient bit packing with two-part time encoding.
-        
-        Args:
-            peaks: List of (frequency, time, amplitude) tuples
+          """
             
-        Returns:
-            bytes: Binary encoded data with peak information
-        """
-        # Validate input
-        if not peaks:
-            return b''
-        
-        # Create a bitarray for packing
-        bits = bitarray()
-        
-        # Add a version byte for future compatibility
-        version = 3  # Version 3 uses two-part time encoding with 6+12 bits
-        bits.frombytes(struct.pack('B', version))
-        
-        # Add number of peaks (2 bytes, up to 65535 peaks)
-        bits.frombytes(struct.pack('<H', len(peaks)))
-        
-        # Add each peak using bit packing
-        for freq, time_seconds, amp in peaks:
-            # Convert to integers with specified precision
-            freq_int = min(int(round(freq * self.FREQ_SCALE)), self.FREQ_MAX)
-            
-            # Convert time to minutes and seconds
-            minutes = int(time_seconds / 60)
-            seconds = time_seconds % 60
-            
-            # Ensure within range
-            minutes_int = min(minutes, self.MINUTE_MAX)
-            seconds_int = min(int(round(seconds * self.SECOND_SCALE)), self.SECOND_MAX)
-            
-            amp_int = min(int(round(amp * self.AMP_SCALE)), self.AMP_MAX)
-            
-            # Add frequency bits (10 bits)
-            for i in range(self.FREQ_BITS - 1, -1, -1):
-                bits.append((freq_int >> i) & 1)
-                
-            # Add minutes bits (6 bits)
-            for i in range(self.MINUTE_BITS - 1, -1, -1):
-                bits.append((minutes_int >> i) & 1)
-                
-            # Add seconds bits (12 bits)
-            for i in range(self.SECOND_BITS - 1, -1, -1):
-                bits.append((seconds_int >> i) & 1)
-                
-            # Add amplitude bits (10 bits)
-            for i in range(self.AMP_BITS - 1, -1, -1):
-                bits.append((amp_int >> i) & 1)
-        
-        # Convert to bytes
-        # Pad to make byte-aligned if necessary
-        padding = (8 - (len(bits) % 8)) % 8
-        for _ in range(padding):
-            bits.append(0)
-        
-        return bits.tobytes()
+          
+          Args:
+              peaks: List of (frequency, time, amplitude) tuples
+              
+          Returns:
+              bytes: Binary encoded data with peak information
+          """
+          # Validate input
+          if not peaks:
+              return b''
+          
+          # Create a bitarray for packing
+          bits = bitarray()
+          
+          # Add a version byte for future compatibility
+          version = 3  # Version 3 uses two-part time encoding with 6+12 bits
+          bits.frombytes(struct.pack('B', version))
+          
+          # Add number of peaks (2 bytes, up to 65535 peaks)
+          bits.frombytes(struct.pack('<H', len(peaks)))
+          
+          # Add each peak using bit packing
+          for freq, time_seconds, amp in peaks:
+              # Convert to integers with specified precision
+              freq_int = min(int(round(freq * self.FREQ_SCALE)), self.FREQ_MAX)
+              
+              # Convert time to minutes and seconds
+              minutes = int(time_seconds / 60)
+              seconds = time_seconds % 60
+              
+              # Ensure within range
+              minutes_int = min(minutes, self.MINUTE_MAX)
+              seconds_int = min(int(round(seconds * self.SECOND_SCALE)), self.SECOND_MAX)
+              
+              amp_int = min(int(round(amp * self.AMP_SCALE)), self.AMP_MAX)
+              
+              # Add frequency bits (10 bits)
+              for i in range(self.FREQ_BITS - 1, -1, -1):
+                  bits.append((freq_int >> i) & 1)
+                  
+              # Add minutes bits (6 bits)
+              for i in range(self.MINUTE_BITS - 1, -1, -1):
+                  bits.append((minutes_int >> i) & 1)
+                  
+              # Add seconds bits (12 bits)
+              for i in range(self.SECOND_BITS - 1, -1, -1):
+                  bits.append((seconds_int >> i) & 1)
+                  
+              # Add amplitude bits (10 bits)
+              for i in range(self.AMP_BITS - 1, -1, -1):
+                  bits.append((amp_int >> i) & 1)
+          
+          # Convert to bytes
+          # Pad to make byte-aligned if necessary
+          padding = (8 - (len(bits) % 8)) % 8
+          for _ in range(padding):
+              bits.append(0)
+          
+          return bits.tobytes()
     
     def decode_peaks(self, binary_data):
         """

@@ -2,16 +2,16 @@ from audioHash import AudioHash
 from redisIntegration import RedisAudioHashSearch
 import time
 
-audio_path = "/Users/kanishka/Downloads/h_audio1.mp3"
-audio_path2 = "/Users/kanishka/Downloads/h_audio_cut2.wav"
-audio_path3 = "/Users/kanishka/Downloads/rec_1.mp3"
+audio_path = "./audio/h_audio1.mp3"
+audio_path2 = "./audio/h_audio_cut2.wav"
+audio_path3 = "./audio/rec_1.mp3"
 
 def test_python():
 
     ahash = AudioHash()
 
     start_peak = time.time()
-    peaks = ahash.create_time_sensitive_hash(audio_path)
+    peaks = ahash.create_time_sensitive_hash(audio_path,visualize=True)
     end_peak = time.time()
 
     start_encode = time.time()
